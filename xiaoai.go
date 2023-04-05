@@ -1,18 +1,38 @@
-package service
+package xiaoaitts
 
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
+	"strconv"
 	"strings"
-
-	"github.com/qfyang-cn/xiaoai-tts/models"
-	"github.com/qfyang-cn/xiaoai-tts/req"
-	"github.com/qfyang-cn/xiaoai-tts/utils"
 )
 
+func LoginByAccount(m *MiAccount) *Session {
+Login:
+	sign := GetLoginSign()
+	authInfo := ServiceAuth(sign.Sign, m)
+	//
+	if authInfo.Code != 0 {
+		fmt.Println("errr")
+	}
+	//
+	session := &Session{}
+	token := LoginMiAi(authInfo)
+	//
+	if len(token) > 0 {
+		session.ServiceToken = token
+		session.UserId = strconv.Itoa(authInfo.UserID)
+	} else {
+		goto Login
+	}
+	//
+	return session
+}
+
 type XiaoAiFunc interface {
-	GetDevice() []models.DeviceInfo
+	GetDevice() []DeviceInfo
 	UseDevice(index int16)
 	Say(text string)
 	SetVolume(volume int8)
@@ -22,19 +42,19 @@ type XiaoAiFunc interface {
 	Prev()
 	Next()
 	TogglePlayState()
-	GetStatus() *models.Info
+	GetStatus() *Info
 	PlayUrl(url string)
 }
 
 type XiaoAi struct {
-	Session *models.Session
+	Session *Session
 }
 
-func NewXiaoAi(m *models.MiAccount) XiaoAiFunc {
+func NewXiaoAi(m *MiAccount) XiaoAiFunc {
 	x := &XiaoAi{}
-	x.Session = Login(m)
+	x.Session = LoginByAccount(m)
 	//Default switch first device
-	msg := req.GetDevice(x.Session)
+	msg := GetDevice(x.Session)
 	//
 	if msg.Data != nil {
 		device := msg.Data[0]
@@ -45,26 +65,26 @@ func NewXiaoAi(m *models.MiAccount) XiaoAiFunc {
 	return x
 }
 
-func (x *XiaoAi) GetDevice() []models.DeviceInfo {
-	return req.GetDevice(x.Session).Data
+func (x *XiaoAi) GetDevice() []DeviceInfo {
+	return GetDevice(x.Session).Data
 }
 
 func (x *XiaoAi) UseDevice(index int16) {
-	device := req.GetDevice(x.Session).Data[index]
+	device := GetDevice(x.Session).Data[index]
 	x.Session.DeviceId = device.DeviceID
 	x.Session.SerialNumber = device.SerialNumber
 }
 
 func (x *XiaoAi) Say(text string) {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Text:  text,
 		Save:  0,
 		Media: "app_ios",
 	})
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "text_to_speech",
 		Message: string(msg),
 		Path:    "mibrain",
@@ -72,13 +92,13 @@ func (x *XiaoAi) Say(text string) {
 }
 
 func (x *XiaoAi) SetVolume(volume int8) {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Volume: volume,
 	})
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_set_volume",
 		Message: string(msg),
 		Path:    "mediaplayer",
@@ -86,27 +106,27 @@ func (x *XiaoAi) SetVolume(volume int8) {
 }
 
 func (x *XiaoAi) GetVolume() string {
-	msg, _ := json.Marshal(models.Message{})
-	res := req.Ubus(&models.Ticket{
+	msg, _ := json.Marshal(Message{})
+	res := Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_get_play_status",
 		Message: string(msg),
 		Path:    "mediaplayer",
 	})
-	return utils.ParseVolume(string(res))
+	return ParseVolume(string(res))
 }
 
 func (x *XiaoAi) Play() {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Action: "play",
 	})
 	//
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_play_operation",
 		Message: string(msg),
 		Path:    "mediaplayer",
@@ -115,14 +135,14 @@ func (x *XiaoAi) Play() {
 }
 
 func (x *XiaoAi) Pause() {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Action: "pause",
 	})
 	//
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_play_operation",
 		Message: string(msg),
 		Path:    "mediaplayer",
@@ -131,14 +151,14 @@ func (x *XiaoAi) Pause() {
 }
 
 func (x *XiaoAi) Prev() {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Action: "prev",
 	})
 	//
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_play_operation",
 		Message: string(msg),
 		Path:    "mediaplayer",
@@ -146,14 +166,14 @@ func (x *XiaoAi) Prev() {
 }
 
 func (x *XiaoAi) Next() {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Action: "next",
 	})
 	//
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_play_operation",
 		Message: string(msg),
 		Path:    "mediaplayer",
@@ -161,27 +181,27 @@ func (x *XiaoAi) Next() {
 }
 
 func (x *XiaoAi) TogglePlayState() {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Action: "toggle",
 	})
 	//
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_play_operation",
 		Message: string(msg),
 		Path:    "mediaplayer",
 	})
 }
 
-func (x *XiaoAi) GetStatus() *models.Info {
-	msg, _ := json.Marshal(models.Message{})
+func (x *XiaoAi) GetStatus() *Info {
+	msg, _ := json.Marshal(Message{})
 	//
-	res := req.Ubus(&models.Ticket{
+	res := Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_get_play_status",
 		Message: string(msg),
 		Path:    "mediaplayer",
@@ -191,22 +211,25 @@ func (x *XiaoAi) GetStatus() *models.Info {
 	s := c.FindStringSubmatch(string(res))
 	s2 := s[len(s)-1]
 	s3 := strings.Replace(s2, "\\", "", -1)
-	m := &models.Info{}
-	json.Unmarshal([]byte(s3), m)
+	m := &Info{}
+	err := json.Unmarshal([]byte(s3), m)
+	if err != nil {
+		log.Print(err)
+	}
 	return m
 }
 
 func (x *XiaoAi) PlayUrl(url string) {
-	msg, _ := json.Marshal(models.Message{
+	msg, _ := json.Marshal(Message{
 		Url:   url,
 		Media: "app_ios",
 		Type:  1,
 	})
 	//
-	req.Ubus(&models.Ticket{
+	Ubus(&Ticket{
 		Cookie:   x.Session.GetCookie(),
 		DeviceId: x.Session.DeviceId,
-	}, &models.UbusParam{
+	}, &UbusParam{
 		Method:  "player_play_url",
 		Message: string(msg),
 		Path:    "mediaplayer",

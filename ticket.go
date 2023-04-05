@@ -1,4 +1,4 @@
-package models
+package xiaoaitts
 
 type Ticket struct {
 	Cookie   string

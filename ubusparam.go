@@ -1,4 +1,4 @@
-package models
+package xiaoaitts
 
 type Message struct {
 	Text   string `url:"text" json:"text"`

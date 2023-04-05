@@ -1,4 +1,4 @@
-package models
+package xiaoaitts
 
 type CommonParam struct {
 	Sid  string `url:"sid"`
