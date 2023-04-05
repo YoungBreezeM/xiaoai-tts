@@ -3,8 +3,9 @@ package service
 import (
 	"fmt"
 	"strconv"
-	"xiaoai-tts/src/models"
-	"xiaoai-tts/src/req"
+
+	"github.com/qfyang-cn/xiaoai-tts/src/models"
+	"github.com/qfyang-cn/xiaoai-tts/src/req"
 )
 
 func LoginByAccount(m *models.MiAccount) *models.Session {

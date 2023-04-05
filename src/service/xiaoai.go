@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"xiaoai-tts/src/models"
-	"xiaoai-tts/src/req"
-	"xiaoai-tts/src/utils"
+
+	"github.com/qfyang-cn/xiaoai-tts/src/models"
+	"github.com/qfyang-cn/xiaoai-tts/src/req"
+	"github.com/qfyang-cn/xiaoai-tts/src/utils"
 )
 
 type XiaoAiFunc interface {
