@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/qfyang-cn/xiaoai-tts/src/models"
-	"github.com/qfyang-cn/xiaoai-tts/src/req"
-	"github.com/qfyang-cn/xiaoai-tts/src/utils"
+	"github.com/qfyang-cn/xiaoai-tts/models"
+	"github.com/qfyang-cn/xiaoai-tts/req"
+	"github.com/qfyang-cn/xiaoai-tts/utils"
 )
 
 type XiaoAiFunc interface {

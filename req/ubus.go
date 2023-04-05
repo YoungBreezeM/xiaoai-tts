@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/qfyang-cn/xiaoai-tts/src/constant"
-	"github.com/qfyang-cn/xiaoai-tts/src/models"
-	"github.com/qfyang-cn/xiaoai-tts/src/utils"
+	"github.com/qfyang-cn/xiaoai-tts/constant"
+	"github.com/qfyang-cn/xiaoai-tts/models"
+	"github.com/qfyang-cn/xiaoai-tts/utils"
 
 	"github.com/google/go-querystring/query"
 )

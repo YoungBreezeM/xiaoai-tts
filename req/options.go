@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/qfyang-cn/xiaoai-tts/src/constant"
-	"github.com/qfyang-cn/xiaoai-tts/src/models"
-	"github.com/qfyang-cn/xiaoai-tts/src/utils"
+	"github.com/qfyang-cn/xiaoai-tts/constant"
+	"github.com/qfyang-cn/xiaoai-tts/models"
+	"github.com/qfyang-cn/xiaoai-tts/utils"
 )
 
 func GetDevice(s *models.Session) *models.Msg {

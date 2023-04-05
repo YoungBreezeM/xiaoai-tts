@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/qfyang-cn/xiaoai-tts/src/models"
-	"github.com/qfyang-cn/xiaoai-tts/src/req"
+	"github.com/qfyang-cn/xiaoai-tts/models"
+	"github.com/qfyang-cn/xiaoai-tts/req"
 )
 
 func LoginByAccount(m *models.MiAccount) *models.Session {

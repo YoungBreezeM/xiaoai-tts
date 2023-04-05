@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/qfyang-cn/xiaoai-tts/src/constant"
+	"github.com/qfyang-cn/xiaoai-tts/constant"
 )
 
 func SetXiaoAiRequestHeaders(request *http.Request) {
