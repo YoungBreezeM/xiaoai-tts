@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	xiaoaitts "github.com/qfyang-cn/xiaoai-tts"
+	xiaoaitts "github.com/YoungBreezeM/xiaoai-tts"
 )
 
 func main() {
 	m := &xiaoaitts.MiAccount{
-		User: "username",
-		Pwd:  "password",
+		User: "xxxx",
+		Pwd:  "xxxxx",
 	}
 	x := xiaoaitts.NewXiaoAi(m)
 	input := bufio.NewReader(os.Stdin)
