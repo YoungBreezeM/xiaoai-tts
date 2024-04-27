@@ -1,4 +1,4 @@
-module github.com/qfyang-cn/xiaoai-tts
+module github.com/YoungBreezeM/xiaoai-tts
 
 go 1.20
 
